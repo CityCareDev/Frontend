@@ -1,0 +1,132 @@
+<div class='login-layout'>
+  <div class='brand-bg-pattern'></div>
+  <div class='login-form-container'>
+    <div class='brand-header'>
+      <div class='logo'>
+        <svg viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'>
+          <defs>
+            <linearGradient id='neonBlueRing' x1='8' y1='8' x2='56' y2='56' gradientUnits='userSpaceOnUse'>
+              <stop offset='0%' stop-color='#67e8f9'/>
+              <stop offset='45%' stop-color='#38bdf8'/>
+              <stop offset='100%' stop-color='#2563eb'/>
+            </linearGradient>
+            <filter id='neonBlueGlow' x='-40%' y='-40%' width='180%' height='180%'>
+              <feDropShadow dx='0' dy='0' stdDeviation='0.8' flood-color='#67e8f9' flood-opacity='0.55'/>
+              <feDropShadow dx='0' dy='0' stdDeviation='1.4' flood-color='#38bdf8' flood-opacity='0.4'/>
+              <feDropShadow dx='0' dy='0' stdDeviation='2.2' flood-color='#1d4ed8' flood-opacity='0.25'/>
+            </filter>
+          </defs>
+          <!-- Circular C-form mark -->
+          <circle cx='32' cy='32' r='24' stroke='url(#neonBlueRing)' stroke-width='10' fill='none' stroke-linecap='round' stroke-dasharray='132 20' transform='rotate(-26 32 32)' filter='url(#neonBlueGlow)'/>
+          <!-- Heartbeat pulse used as the central separator -->
+          <path d='M14 32h11l3-7 5 14 5-14 3 7h10' stroke='#ffffff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/>
+          <!-- Subtle right-side opening emphasis for a cleaner C silhouette -->
+          <path d='M50 32h6' stroke='#ffffff' stroke-width='6' stroke-linecap='round'/>
+        </svg>
+      </div>
+      <h1>CityCare</h1>
+      <p>Integrated Urban Healthcare<br>Emergency Response Platform</p>
+    </div>
+    <div class='tabs-switcher glass-panel'>
+      <button type='button' [class.active]='!isRegister' (click)='isRegister = false'>Log In</button>
+      <button type='button' [class.active]='isRegister' (click)='isRegister = true'>Register</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    @if (!isRegister) {
+      <form [formGroup]="loginForm" (ngSubmit)='onSubmit()' class='enterprise-form'>
+        <div class='form-group glass-panel'>
+          <label for='login-email'>Email Address</label>
+          <input type='email' formControlName='email' id='login-email' placeholder='Enter your email' autocomplete='email' />
+          @if (f['email'].touched && f['email'].errors) {
+            <small class="field-error">
+              @if (f['email'].errors['required']) { Email is required }
+              @if (f['email'].errors['email']) { Please enter a valid email address }
+            </small>
+          }
+        </div>
+        <div class='form-group glass-panel'>
+          <label for='login-password'>Password</label>
+          <input type='password' formControlName='password' id='login-password' placeholder='Enter your password' autocomplete='current-password' />
+          @if (f['password'].touched && f['password'].errors) {
+            <small class="field-error">Password is required</small>
+          }
+        </div>
+        @if (error) {
+          <div class='alert error glass-panel'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg>
+            <span>{{ error }}</span>
+          </div>
+        }
+        <button type='submit' class='btn-submit glass-panel-button' [disabled]='loading'>
+          @if(loading) {
+            <span class='spinner'></span> Processing...
+          } @else {
+            Sign In to Dashboard
+          }
+        </button>
+      </form>
+    }
+
+    <!-- REGISTER FORM -->
+    @if (isRegister) {
+      <form [formGroup]="registerForm" (ngSubmit)='onSubmit()' class='enterprise-form'>
+        <div class='form-group glass-panel'>
+          <label for='reg-name'>Full Name</label>
+          <input type='text' formControlName='name' id='reg-name' placeholder='Enter your full name' />
+          @if (r['name'].touched && r['name'].errors) {
+            <small class="field-error">
+              @if (r['name'].errors['required']) { Full name is required }
+              @else if (r['name'].errors['minlength']) { Name must be at least 2 characters }
+              @else if (r['name'].errors['pattern']) { Name must contain only letters and spaces }
+            </small>
+          }
+        </div>
+        <div class='form-group glass-panel'>
+          <label for='reg-email'>Email Address</label>
+          <input type='email' formControlName='email' id='reg-email' placeholder='Enter your email' />
+          @if (r['email'].touched && r['email'].errors) {
+            <small class="field-error">
+              @if (r['email'].errors['required']) { Email is required }
+              @else if (r['email'].errors['email']) { Please enter a valid email address }
+            </small>
+          }
+        </div>
+        <div class='form-group glass-panel'>
+          <label for='reg-phone'>Phone Number</label>
+          <input type='tel' formControlName='phone' id='reg-phone' placeholder='10-digit phone number' />
+          @if (r['phone'].touched && r['phone'].errors) {
+            <small class="field-error">
+              @if (r['phone'].errors['required']) { Phone number is required }
+              @else if (r['phone'].errors['pattern']) { Enter a valid 10-digit phone number }
+            </small>
+          }
+        </div>
+        <div class='form-group glass-panel'>
+          <label for='reg-password'>Password</label>
+          <input type='password' formControlName='password' id='reg-password' placeholder='Min 8 chars, uppercase, lowercase & number' />
+          @if (r['password'].touched && r['password'].errors) {
+            <small class="field-error">
+              @if (r['password'].errors['required']) { Password is required }
+              @else if (r['password'].errors['minlength']) { Password must be at least 8 characters }
+              @else if (r['password'].errors['pattern']) { Must include uppercase, lowercase and a number }
+            </small>
+          }
+        </div>
+        @if (error) {
+          <div class='alert error glass-panel'>
+            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg>
+            <span>{{ error }}</span>
+          </div>
+        }
+        <button type='submit' class='btn-submit glass-panel-button' [disabled]='loading'>
+          @if(loading) {
+            <span class='spinner'></span> Processing...
+          } @else {
+            Register Account
+          }
+        </button>
+      </form>
+    }
+  </div>
+</div>

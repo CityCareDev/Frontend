@@ -15,6 +15,10 @@ import { Facility, FacilityStatus, FacilityType } from '../../../models/facility
 export class AdminFacilitiesTab implements OnInit {
   facilities: Facility[] = [];
   filteredFacilities: Facility[] = [];
+  facilityPage = 0;
+  facilitySize = 10;
+  facilityTotalPages = 0;
+  facilityTotalElements = 0;
   showAddFacility = false;
   isSavingFacility = false;
   errorMsg = '';
@@ -63,19 +67,51 @@ export class AdminFacilitiesTab implements OnInit {
     this.loadFacilities();
   }
 
-  loadFacilities() {
-    this.facilityService.getAllFacilities().subscribe({
+  loadFacilities(page: number = this.facilityPage) {
+    this.facilityService.getAllFacilitiesPage(page, this.facilitySize).subscribe({
       next: data => {
-        this.facilities = data;
+        this.facilityPage = data.number;
+        this.facilitySize = data.size;
+        this.facilityTotalPages = data.totalPages;
+        this.facilityTotalElements = data.totalElements;
+        this.facilities = data.content ?? [];
         this.applyFacilityFilter();
         this.cdr.markForCheck();
       },
       error: () => {
+        this.facilityPage = 0;
+        this.facilityTotalPages = 0;
+        this.facilityTotalElements = 0;
         this.facilities = [];
         this.filteredFacilities = [];
         this.cdr.markForCheck();
       }
     });
+  }
+
+  goToPreviousFacilityPage() {
+    if (this.facilityPage <= 0) return;
+    this.loadFacilities(this.facilityPage - 1);
+  }
+
+  goToNextFacilityPage() {
+    if (this.facilityPage + 1 >= this.facilityTotalPages) return;
+    this.loadFacilities(this.facilityPage + 1);
+  }
+
+  onFacilityPageSizeChange(size: string | number) {
+    const parsed = Number(size);
+    this.facilitySize = Number.isFinite(parsed) && parsed > 0 ? parsed : 10;
+    this.loadFacilities(0);
+  }
+
+  get facilityRangeStart(): number {
+    if (this.facilityTotalElements === 0) return 0;
+    return (this.facilityPage * this.facilitySize) + 1;
+  }
+
+  get facilityRangeEnd(): number {
+    return Math.min((this.facilityPage + 1) * this.facilitySize, this.facilityTotalElements);
   }
 
   toggleAddFacility() {
@@ -140,7 +176,7 @@ export class AdminFacilitiesTab implements OnInit {
     this.applyFacilitySort();
   }
 
-  trackByFacilityId(index: number, facility: Facility): number {
+  trackByFacilityId(_index: number, facility: Facility): number {
     return facility.facilityId;
   }
 

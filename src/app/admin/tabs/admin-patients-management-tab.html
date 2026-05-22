@@ -118,3 +118,23 @@
     </tbody>
   </table>
 </div>
+
+<div class="list-pagination" *ngIf="vm.patientTotalElements > 0">
+  <div class="pagination-summary">
+    Showing {{ vm.patientRangeStart }} - {{ vm.patientRangeEnd }} of {{ vm.patientTotalElements }} patients
+  </div>
+  <div class="pagination-controls">
+    <label>
+      Page size:
+      <select [ngModel]="vm.patientSize" (ngModelChange)="vm.onPatientPageSizeChange($event)">
+        <option [ngValue]="5">5</option>
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+        <option [ngValue]="50">50</option>
+      </select>
+    </label>
+    <button class="btn-secondary" (click)="vm.goToPreviousPatientPage()" [disabled]="vm.patientPage === 0">Previous</button>
+    <span>Page {{ vm.patientTotalPages === 0 ? 0 : (vm.patientPage + 1) }} of {{ vm.patientTotalPages }}</span>
+    <button class="btn-secondary" (click)="vm.goToNextPatientPage()" [disabled]="vm.patientPage + 1 >= vm.patientTotalPages">Next</button>
+  </div>
+</div>

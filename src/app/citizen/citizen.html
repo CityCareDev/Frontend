@@ -1,0 +1,306 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard fade-in">
+  <aside class="sidebar">
+    <nav>
+      <button [class.active]="activeTab==='overview'" (click)="setTab('overview')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><line x1='3' y1='9' x2='21' y2='9'></line><line x1='9' y1='21' x2='9' y2='9'></line></svg></span> Overview
+      </button>
+      <button [class.active]="activeTab==='profile'" (click)="setTab('profile')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg></span> My Profile
+      </button>
+      <button [class.active]="activeTab==='documents'" (click)="setTab('documents')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'></path><polyline points='14 2 14 8 20 8'></polyline></svg></span> Documents
+        @if (pendingDocsCount > 0) { 
+          <span class="badge">{{ pendingDocsCount }}</span> 
+        }
+      </button>
+      <button [class.active]="activeTab==='report'" (click)="setTab('report')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg></span> Report Emergency
+      </button>
+      <button [class.active]="activeTab==='emergencies'" (click)="setTab('emergencies')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2 0 1 2-2h2'></path><rect x='8' y='2' width='8' height='4' rx='1' ry='1'></rect></svg></span> My Emergencies
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    @if (activeTab === 'overview') {
+      <div class="page-header">
+        <div>
+          <h2>Hello, {{ auth.getUser()?.name || 'Citizen' }}</h2>
+          <p>Manage your healthcare services and emergencies</p>
+        </div>
+        <button class="btn-danger overview-report-btn" (click)="setTab('report')">
+          <svg class='icon' viewBox='0 0 24 24' width='1.1em' height='1.1em' stroke='currentColor' stroke-width='2' fill='none' aria-hidden="true"><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg>
+          Report Emergency
+        </button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card blue card-interactive" (click)="setTab('emergencies')">
+          <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ emergencies.length }}</span>
+            <span class="stat-label">Total Emergencies</span>
+          </div>
+        </div>
+        <div class="stat-card red card-interactive" (click)="setTab('emergencies')">
+          <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><polyline points='12 6 12 12 16 14'></polyline></svg></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ pendingCount }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+        <div class="stat-card green card-interactive" (click)="setTab('emergencies')">
+          <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'></path><polyline points='22 4 12 14.01 9 11.01'></polyline></svg></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ resolvedCount }}</span>
+            <span class="stat-label">Resolved</span>
+          </div>
+        </div>
+        <div class="stat-card card-interactive" 
+             [ngClass]="pendingDocsCount > 0 ? 'orange' : ''"
+             (click)="setTab('documents')">
+          <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'></path><polyline points='14 2 14 8 20 8'></polyline></svg></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ documents.length }}</span>
+            <span class="stat-label">Documents</span>
+          </div>
+        </div>
+      </div>
+
+    }
+
+    @if (activeTab === 'profile') {
+      <div class="page-header">
+        <h2>My Profile</h2>
+        @if (!isEditMode && profile) {
+          <button class="btn-primary" (click)="enterEditMode()" style="margin-left:auto"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'></path><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'></path></svg> Edit Profile</button>
+        }
+      </div>
+      
+      @if (!isEditMode && profile) {
+        <!-- VIEW MODE -->
+        <div class="form-card">
+          @if (!profile) {
+            <p class="empty">Loading profile...</p>
+          } @else {
+            <div class="profile-view">
+              <div class="profile-field">
+                <label>Full Name</label>
+                <p>{{ profile.name || 'Not provided' }}</p>
+              </div>
+              <div class="profile-field">
+                <label>Date of Birth</label>
+                <p>{{ profile.dateOfBirth || 'Not provided' }}</p>
+              </div>
+              <div class="profile-field">
+                <label>Gender</label>
+                <p>{{ profile.gender || 'Not provided' }}</p>
+              </div>
+              <div class="profile-field">
+                <label>Contact Info</label>
+                <p>{{ profile.contactInfo || 'Not provided' }}</p>
+              </div>
+              <div class="profile-field">
+                <label>Address</label>
+                <p>{{ profile.address || 'Not provided' }}</p>
+              </div>
+              <div class="profile-field">
+                <label>Status</label>
+                <p><span class="status-badge" [class]="profile.status.toLowerCase()">{{ profile.status }}</span></p>
+              </div>
+              @if (profile.isVerified !== undefined) {
+                <div class="profile-field">
+                  <label>Verification Status</label>
+                  <p><span class="status-badge" [class]="profile.isVerified ? 'verified' : 'pending'">{{ profile.isVerified ? 'VERIFIED' : 'PENDING' }}</span></p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- EDIT MODE (or CREATE MODE if profile is null) -->
+        <div class="form-card">
+          @if (errorMsg) { <div class="alert error">{{ errorMsg }}</div> }
+          <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+            <div class="form-group">
+              <label>Full Name {{ isInitialProfileSetupPending ? '*' : '' }}</label>
+              <input type="text" formControlName="name" placeholder="Your name" />
+              @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+                <small class="error-text">
+                  @if (profileForm.get('name')?.errors?.['required']) { Name is required }
+                  @else if (profileForm.get('name')?.errors?.['pattern']) { Name must contain only letters and spaces }
+                  @else if (profileForm.get('name')?.errors?.['minlength']) { Name must be at least 2 characters }
+                </small>
+              }
+            </div>
+            <div class="form-group">
+              <label>Date of Birth {{ isInitialProfileSetupPending ? '*' : '' }}</label>
+              <input
+                type="date"
+                formControlName="dateOfBirth"
+                [attr.max]="todayDate"
+                [attr.min]="minDate"
+              />
+              @if (profileForm.get('dateOfBirth')?.invalid && profileForm.get('dateOfBirth')?.touched) {
+                <small class="error-text">Date of birth is required</small>
+              }
+            </div>
+            <div class="form-group">
+              <label>Gender {{ isInitialProfileSetupPending ? '*' : '' }}</label>
+              <select formControlName="gender">
+                <option value="">Select Gender</option>
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
+              </select>
+              @if (profileForm.get('gender')?.invalid && profileForm.get('gender')?.touched) {
+                <small class="error-text">Gender is required</small>
+              }
+            </div>
+            <div class="form-group">
+              <label>Contact Info {{ isInitialProfileSetupPending ? '*' : '' }} (10 digits)</label>
+              <input type="text" formControlName="contactInfo" placeholder="Phone number (10 digits)" maxlength="10" />
+              @if (profileForm.get('contactInfo')?.invalid && profileForm.get('contactInfo')?.touched) {
+                <small class="error-text">Valid 10-digit phone number is required</small>
+              }
+            </div>
+            <div class="form-group">
+              <label>Address {{ isInitialProfileSetupPending ? '*' : '' }}</label>
+              <textarea formControlName="address" rows="2" placeholder="Your address"></textarea>
+              @if (profileForm.get('address')?.invalid && profileForm.get('address')?.touched) {
+                <small class="error-text">Address is required</small>
+              }
+            </div>
+            <div style="display:flex;gap:1rem">
+              <button type="submit" class="btn-primary" [disabled]="isSavingProfile || (isInitialProfileSetupPending && profileForm.invalid)"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z'></path><polyline points='17 21 17 13 7 13 7 21'></polyline><polyline points='7 3 7 8 15 8'></polyline></svg> {{ isSavingProfile ? 'Saving...' : 'Save Profile' }}</button>
+              <button type="button" class="btn-secondary" (click)="cancelEdit()"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><line x1='18' y1='6' x2='6' y2='18'></line><line x1='6' y1='6' x2='18' y2='18'></line></svg> Cancel</button>
+            </div>
+          </form>
+        </div>
+      }
+    }
+
+    @if (activeTab === 'documents') {
+      <div class="page-header">
+        <h2>My Documents</h2>
+        <p>Upload and manage your identity and medical documents</p>
+      </div>
+      <div class="form-card" style="margin-bottom:1.5rem">
+        @if (errorMsg) { <div class="alert error">{{ errorMsg }}</div> }
+        <form (ngSubmit)="uploadDocument()">
+          <div class="form-group">
+            <label>Upload Document (ID, Medical Records, Insurance)</label>
+            <input type="file" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png" required />
+          </div>
+          <button type="submit" class="btn-primary" [disabled]="isUploadingDoc || !selectedFile"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'></path><polyline points='14 2 14 8 20 8'></polyline></svg> {{ isUploadingDoc ? 'Uploading...' : 'Upload Document' }}</button>
+        </form>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Uploaded Date</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            @for (doc of documents; track doc.documentId) {
+              <tr>
+                <td>#{{ doc.documentId }}</td>
+                <td>{{ doc.uploadedDate | date }}</td>
+                <td><span class="status-badge" [class]="doc.verificationStatus.toLowerCase()">{{ doc.verificationStatus }}</span></td>
+                <td><button class="btn-sm btn-info" (click)="viewDocument(doc)">View</button></td>
+              </tr>
+            }
+            @empty { <tr><td colspan="4" class="empty">No documents uploaded</td></tr> }
+          </tbody>
+        </table>
+      </div>
+
+      @if (documentPreviewUrl) {
+        <div class="form-card" style="margin-top:1.5rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h3 style="margin:0">Document Preview</h3>
+            <button class="btn-sm btn-danger" (click)="closePreview()">✕ Close</button>
+          </div>
+          @if (documentIsImage) {
+            <img [src]="documentPreviewUrl" style="max-width:100%;max-height:500px;border:1px solid #ddd;border-radius:8px;display:block;margin:0 auto" />
+          } @else {
+            <iframe [src]="documentPreviewUrl" style="width:100%;height:500px;border:1px solid #ddd;border-radius:8px"></iframe>
+          }
+        </div>
+      }
+    }
+
+    @if (activeTab === 'report') {
+      <div class="page-header">
+        <h2>Report Emergency</h2>
+        <p>Submit an emergency report for immediate response</p>
+      </div>
+      @if (emergencyReportingBlocker; as blocker) {
+        <div class="form-card report-blocker-card">
+          <div class="report-blocker-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none' aria-hidden="true"><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'></path><line x1='12' y1='9' x2='12' y2='13'></line><line x1='12' y1='17' x2='12.01' y2='17'></line></svg></div>
+          <h3>{{ blocker.title }}</h3>
+          <p>{{ blocker.subtitle }}</p>
+          <div class="report-blocker-actions">
+            <button class="btn-primary" (click)="setTab(blocker.targetTab)">
+              {{ blocker.targetTab === 'profile' ? 'Update Profile' : 'Open Documents' }}
+            </button>
+            @if (blocker.targetTab === 'profile') {
+              <button class="btn-secondary" (click)="setTab('documents')">Go to Documents</button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="form-card">
+          @if (errorMsg) { <div class="alert error">{{ errorMsg }}</div> }
+          <form [formGroup]="emergencyForm" (ngSubmit)="reportEmergency()">
+            <div class="form-group">
+              <label>Emergency Type *</label>
+              <select formControlName="type">
+                @for (t of emergencyTypes; track t) {
+                  <option [value]="t">{{ t.replace('_', ' ') }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Location *</label>
+              <input type="text" formControlName="location" placeholder="Enter your location" />
+              @if (emergencyForm.get('location')?.invalid && emergencyForm.get('location')?.touched) {
+                <small class="error-text">Location is required (min 3 characters)</small>
+              }
+            </div>
+            <div class="form-group">
+              <label>Description (Optional)</label>
+              <textarea formControlName="description" rows="3" placeholder="Describe the emergency situation..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary" [disabled]="isReportingEmergency || emergencyForm.invalid"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg> {{ isReportingEmergency ? 'Reporting...' : 'Report Emergency' }}</button>
+          </form>
+        </div>
+      }
+    }
+
+    @if (activeTab === 'emergencies') {
+      <div class="page-header"><h2>My Emergencies</h2></div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Type</th><th>Location</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            @for (e of emergencies; track e.emergencyId) {
+              <tr>
+                <td>#{{ e.emergencyId }}</td>
+                <td>{{ e.type }}</td>
+                <td>{{ e.location }}</td>
+                <td>{{ e.date | date }}</td>
+                <td><span class="status-badge" [class]="e.status.toLowerCase()">{{ e.status }}</span></td>
+              </tr>
+            }
+            @empty { <tr><td colspan="5" class="empty">No emergencies found</td></tr> }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </main>
+</div>

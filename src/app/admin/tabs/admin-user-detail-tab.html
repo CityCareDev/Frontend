@@ -1,0 +1,101 @@
+@if (selectedUser) {
+  <div class="page-header">
+    <h2>User Details: {{ selectedUser.name }}</h2>
+    <button class="btn-back" (click)="setTab('users')">← Back</button>
+  </div>
+  <div class="detail-card">
+    <h3>User Information</h3>
+    <div class="detail-row"><span>User ID</span><strong>#{{ selectedUser.userId }}</strong></div>
+    <div class="detail-row"><span>Role</span><span class="role-tag" [class]="'role-' + selectedUser.role.toLowerCase()">{{ selectedUser.role }}</span></div>
+    <div class="detail-row"><span>Status</span><span class="status-badge" [class]="(selectedUser.status || 'ACTIVE').toLowerCase()">{{ selectedUser.status || 'ACTIVE' }}</span></div>
+
+    @if (userExtraDetails) {
+      @if (selectedUser.role === 'CITIZEN') {
+        <h3 class="section-divider">Citizen Profile</h3>
+        <div class="detail-row"><span>Citizen ID</span><strong>#{{ userExtraDetails.citizenId }}</strong></div>
+        <div class="detail-row"><span>Name</span><strong>{{ userExtraDetails.name || selectedUser.name }}</strong></div>
+        <div class="detail-row"><span>Email</span><strong>{{ selectedUser.email }}</strong></div>
+        <div class="detail-row"><span>Contact</span><strong>{{ userExtraDetails.contactInfo || 'N/A' }}</strong></div>
+        <div class="detail-row"><span>Address</span><strong>{{ userExtraDetails.address || 'N/A' }}</strong></div>
+        <div class="detail-row"><span>Date of Birth</span><strong>{{ userExtraDetails.dateOfBirth || 'N/A' }}</strong></div>
+        <div class="detail-row"><span>Gender</span><strong>{{ userExtraDetails.gender || 'N/A' }}</strong></div>
+      }
+      @else if (selectedUser.role === 'DOCTOR' || selectedUser.role === 'DISPATCHER') {
+        <h3 class="section-divider">Staff Profile</h3>
+        <div class="detail-row"><span>Staff ID</span><strong>#{{ userExtraDetails.staffId }}</strong></div>
+        <div class="detail-row"><span>Name</span><strong>{{ userExtraDetails.name || selectedUser.name }}</strong></div>
+        <div class="detail-row"><span>Email</span><strong>{{ selectedUser.email }}</strong></div>
+        <div class="detail-row"><span>Contact</span><strong>{{ userExtraDetails.contactInfo || 'N/A' }}</strong></div>
+        <div class="detail-row"><span>Facility</span><strong>{{ userExtraDetails.facilityId ? getFacilityName(userExtraDetails.facilityId) : 'Not assigned' }}</strong></div>
+      }
+      @else {
+        <h3 class="section-divider">Profile Details</h3>
+        <div class="detail-row"><span>Name</span><strong>{{ userExtraDetails.name || selectedUser.name }}</strong></div>
+        <div class="detail-row"><span>Email</span><strong>{{ userExtraDetails.email || selectedUser.email }}</strong></div>
+        <div class="detail-row"><span>Phone</span><strong>{{ userExtraDetails.phone || selectedUser.phone || 'N/A' }}</strong></div>
+      }
+    } @else {
+      <div class="detail-row"><span>Name</span><strong>{{ selectedUser.name }}</strong></div>
+      <div class="detail-row"><span>Email</span><strong>{{ selectedUser.email }}</strong></div>
+      <div class="detail-row"><span>Phone</span><strong>{{ selectedUser.phone || 'N/A' }}</strong></div>
+      <p class="loading-hint">Loading additional details...</p>
+    }
+    <div class="detail-actions">
+      @if (errorMsg) { <div class="alert error alert-inline">{{ errorMsg }}</div> }
+      @if (selectedUser.status === 'ACTIVE') {
+        @if ((selectedUser.userId || selectedUser.id) !== (auth.getUser()?.userId || auth.getUser()?.id)) {
+          <button class="btn-warning btn row-action-button" (click)="deactivateUser(selectedUser.userId)" [disabled]="isActionInFlight(userActionKey('deactivate', selectedUser.userId || selectedUser.id))">{{ isActionInFlight(userActionKey('deactivate', selectedUser.userId || selectedUser.id)) ? 'Deactivating...' : 'Deactivate User' }}</button>
+        }
+      } @else {
+        <button class="btn-success btn row-action-button" (click)="activateUser(selectedUser.userId)" [disabled]="isActionInFlight(userActionKey('activate', selectedUser.userId || selectedUser.id))">{{ isActionInFlight(userActionKey('activate', selectedUser.userId || selectedUser.id)) ? 'Activating...' : 'Activate User' }}</button>
+      }
+      @if ((selectedUser.userId || selectedUser.id) !== (auth.getUser()?.userId || auth.getUser()?.id)) {
+        <button class="btn-danger btn row-action-button" (click)="removeUser(selectedUser.userId)" [disabled]="isActionInFlight(userActionKey('remove', selectedUser.userId || selectedUser.id))">{{ isActionInFlight(userActionKey('remove', selectedUser.userId || selectedUser.id)) ? 'Removing...' : 'Remove User' }}</button>
+      }
+    </div>
+  </div>
+
+  @if (selectedUser.role === 'CITIZEN') {
+    <div class="table-card mt-section">
+      <h3 class="section-divider compact">Uploaded Documents</h3>
+      <table>
+        <thead><tr><th>Document ID</th><th>Upload Date</th><th>Status</th><th class="action-head">Actions</th></tr></thead>
+        <tbody>
+          @for (doc of userDocuments; track doc.documentId) {
+            <tr>
+              <td>#{{ doc.documentId }}</td>
+              <td>{{ doc.uploadedDate }}</td>
+              <td><span class="status-badge" [class]="doc.verificationStatus.toLowerCase()">{{ doc.verificationStatus }}</span></td>
+              <td class="action-cell-right">
+                <button class="btn-sm btn-info row-action-button" (click)="previewUserDocument(doc)"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'></path><circle cx='12' cy='12' r='3'></circle></svg> View</button>
+              </td>
+            </tr>
+            @if (previewingUserDocId === doc.documentId) {
+              <tr class="preview-row">
+                <td colspan="4">
+                  @if (isLoadingUserDoc) {
+                    <div class="loading-spinner doc-loading"><div class="spinner"></div></div>
+                  }
+                  @if (userDocPreviewUrl) {
+                    <div class="document-preview preview-panel">
+                      <div class="preview-header">
+                        <h3 class="preview-title">Document Preview</h3>
+                        <button class="btn-sm btn-secondary" (click)="previewingUserDocId = null; userDocPreviewUrl = null">Close Preview</button>
+                      </div>
+                      @if (userDocIsImage) {
+                        <img [src]="userDocPreviewUrl" class="preview-media" />
+                      } @else {
+                        <iframe [src]="userDocPreviewUrl" class="preview-media preview-frame"></iframe>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          }
+          @empty { <tr><td colspan="4" class="empty">No documents uploaded</td></tr> }
+        </tbody>
+      </table>
+    </div>
+  }
+}

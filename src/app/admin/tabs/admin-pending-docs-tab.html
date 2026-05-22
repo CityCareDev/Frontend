@@ -1,0 +1,22 @@
+<div class="page-header"><h2>Document Verification Queue</h2></div>
+<div class="table-card">
+  <table>
+    <thead><tr><th>Citizen ID</th><th>Name</th><th>Contact</th><th>Pending Docs</th><th>Actions</th></tr></thead>
+    <tbody>
+      @for (c of vm.pendingDocuments; track c.citizenId) {
+        <tr>
+          <td>#{{ c.citizenId }}</td>
+          <td>{{ c.name }}</td>
+          <td>{{ c.contactInfo }}</td>
+          <td><span class="status-badge pending">{{ c.pendingCount }} Pending</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-sm btn-info row-action-button" (click)="vm.viewCitizenDocuments(c)">Review</button>
+            </div>
+          </td>
+        </tr>
+      }
+      @empty { <tr><td colspan="5" class="empty">No pending documents</td></tr> }
+    </tbody>
+  </table>
+</div>

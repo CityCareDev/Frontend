@@ -1,0 +1,100 @@
+<div class="page-header">
+  <h2>User Management</h2>
+  <button class="btn-primary" (click)="toggleAddUser()">
+    <svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><line x1='12' y1='5' x2='12' y2='19'></line><line x1='5' y1='12' x2='19' y2='12'></line></svg>
+    Add New User
+  </button>
+</div>
+
+<div *ngIf="showAddUser" class="form-card">
+  <div *ngIf="errorMsg" class="alert error">{{ errorMsg }}</div>
+  <form [formGroup]="userForm" (ngSubmit)="addUser()">
+    <div class="form-group">
+      <label>Select Role *</label>
+      <select formControlName="role">
+        <option value="">-- Select Role --</option>
+        <option value="DOCTOR">Doctor</option>
+        <option value="DISPATCHER">Dispatcher</option>
+        <option value="COMPLIANCE_OFFICER">Compliance Officer</option>
+      </select>
+      <small *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched" class="error-text">Role is required</small>
+    </div>
+    <div class="form-group" *ngIf="userForm.get('role')?.value === 'DOCTOR' || userForm.get('role')?.value === 'DISPATCHER'">
+      <label>Assign to Facility *</label>
+      <select formControlName="facilityId">
+        <option [ngValue]="null">-- Select Facility --</option>
+        <ng-container *ngFor="let f of facilities">
+          <option [ngValue]="f.facilityId">{{ f.name }} ({{ f.type }})</option>
+        </ng-container>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" formControlName="name" placeholder="Full name" />
+        <small *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched" class="error-text">
+          <span *ngIf="userForm.get('name')?.errors?.['required']">Name is required</span>
+          <span *ngIf="userForm.get('name')?.errors?.['pattern']">Name must contain only letters and spaces</span>
+        </small>
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" formControlName="email" placeholder="Email address" />
+        <small *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="error-text">Valid email is required</small>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Password * (min 8, uppercase, lowercase, digit)</label>
+        <input type="password" formControlName="password" placeholder="Password" />
+        <small *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="error-text">
+          <span *ngIf="userForm.get('password')?.errors?.['required']">Password is required</span>
+          <span *ngIf="userForm.get('password')?.errors?.['minlength']">Minimum 8 characters</span>
+          <span *ngIf="userForm.get('password')?.errors?.['pattern']">Must include uppercase, lowercase, and digit</span>
+        </small>
+      </div>
+      <div class="form-group">
+        <label>Phone * (10 digits)</label>
+        <input type="text" formControlName="phone" placeholder="Phone number" maxlength="10" />
+        <small *ngIf="userForm.get('phone')?.invalid && userForm.get('phone')?.touched" class="error-text">Valid 10-digit phone number is required</small>
+      </div>
+    </div>
+    <div style="display:flex;gap:1rem">
+      <button type="submit" class="btn-primary" [disabled]="isSubmitting || userForm.invalid"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg> {{ isSubmitting ? 'Adding...' : 'Add User' }}</button>
+      <button type="button" class="btn-secondary" (click)="toggleAddUser()">Cancel</button>
+    </div>
+  </form>
+</div>
+<div class="table-card enterprise-grid">
+  <table>
+    <thead>
+      <tr>
+        <th><button class="sort-header" (click)="sortUsersBy('userId')">ID</button></th>
+        <th><button class="sort-header" (click)="sortUsersBy('name')">Name</button></th>
+        <th><button class="sort-header" (click)="sortUsersBy('email')">Email</button></th>
+        <th><button class="sort-header" (click)="sortUsersBy('role')">Role</button></th>
+        <th><button class="sort-header" (click)="sortUsersBy('status')">Status</button></th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of users; trackBy: trackByUserId">
+          <td>#{{ u.userId }}</td>
+          <td>{{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td><span class="role-tag" [class]="'role-' + u.role.toLowerCase()">{{ u.role }}</span></td>
+          <td>
+            <span class="status-badge" [class]="(u.status || 'ACTIVE').toLowerCase()">{{ u.status || 'ACTIVE' }}</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-sm btn-info row-action-button" (click)="viewUserDetails(u)">View</button>
+              <!-- Deactivate/Activate logic to be implemented if needed -->
+            </div>
+          </td>
+        </tr>
+      
+      <tr *ngIf="users.length === 0"><td colspan="6" class="empty">No users</td></tr>
+    </tbody>
+  </table>
+</div>

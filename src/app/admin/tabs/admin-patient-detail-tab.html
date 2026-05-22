@@ -1,0 +1,100 @@
+@if (vm.selectedPatient) {
+  <div class="page-header">
+    <h2>Patient Details - #{{ vm.selectedPatient.patientId }}</h2>
+    <button class="btn-back" (click)="vm.backToPatientsList()">← Back to Patients</button>
+  </div>
+
+  <div class="patient-detail-view">
+    <div class="info-cards-grid">
+      <div class="detail-card">
+        <h3><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16'></path><path d='M12 9v4'></path><path d='M10 11h4'></path></svg> Patient Information</h3>
+        <div class="detail-grid">
+          <div class="detail-item"><span>Patient ID:</span><strong>#{{ vm.selectedPatient.patientId }}</strong></div>
+          <div class="detail-item"><span>Citizen ID:</span><strong>{{ vm.selectedPatient.citizenId }}</strong></div>
+          <div class="detail-item"><span>Emergency ID:</span><strong>{{ vm.selectedPatient.emergencyId }}</strong></div>
+          <div class="detail-item"><span>Ward:</span><strong>{{ vm.selectedPatient.ward || 'N/A' }}</strong></div>
+          <div class="detail-item"><span>Admission Date:</span><strong>{{ vm.selectedPatient.admissionDate | date:'medium' }}</strong></div>
+          <div class="detail-item"><span>Status:</span><span class="status-badge" [class]="vm.selectedPatient.status.toLowerCase()">{{ vm.selectedPatient.status }}</span></div>
+          @if (vm.selectedPatient.dischargeDate) {
+            <div class="detail-item"><span>Discharge Date:</span><strong>{{ vm.selectedPatient.dischargeDate | date:'medium' }}</strong></div>
+          }
+          <div class="detail-item"><span>Assigned Doctor:</span><strong>{{ vm.getAssignedDoctorName(vm.selectedPatient.patientId) || 'Not assigned' }}</strong></div>
+        </div>
+        @if (vm.selectedPatient.notes) {
+          <div class="notes-section">
+            <strong>Admission Notes:</strong>
+            <p>{{ vm.selectedPatient.notes }}</p>
+          </div>
+        }
+      </div>
+
+      @if (vm.patientCitizenDetails) {
+        <div class="detail-card">
+          <h3><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg> Citizen Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item"><span>Name:</span><strong>{{ vm.patientCitizenDetails.name }}</strong></div>
+            <div class="detail-item"><span>Contact:</span><strong>{{ vm.patientCitizenDetails.contactInfo }}</strong></div>
+            @if (vm.patientCitizenDetails.dateOfBirth) {
+              <div class="detail-item"><span>Date of Birth:</span><strong>{{ vm.patientCitizenDetails.dateOfBirth }}</strong></div>
+            }
+            @if (vm.patientCitizenDetails.gender) {
+              <div class="detail-item"><span>Gender:</span><strong>{{ vm.patientCitizenDetails.gender }}</strong></div>
+            }
+            @if (vm.patientCitizenDetails.address) {
+              <div class="detail-item"><span>Address:</span><strong>{{ vm.patientCitizenDetails.address }}</strong></div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (vm.patientEmergencyDetails) {
+        <div class="detail-card emergency-card">
+          <h3><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg> Emergency Details</h3>
+          <div class="detail-grid">
+            <div class="detail-item"><span>Type:</span><strong class="emergency-type">{{ vm.patientEmergencyDetails.type }}</strong></div>
+            <div class="detail-item"><span>Location:</span><strong>{{ vm.patientEmergencyDetails.location }}</strong></div>
+            <div class="detail-item"><span>Status:</span><span class="status-badge" [class]="vm.patientEmergencyDetails.status.toLowerCase()">{{ vm.patientEmergencyDetails.status }}</span></div>
+            <div class="detail-item"><span>Reported At:</span><strong>{{ vm.patientEmergencyDetails.createdAt | date:'medium' }}</strong></div>
+            @if (vm.patientEmergencyDetails.dispatchedAt) {
+              <div class="detail-item"><span>Dispatched At:</span><strong>{{ vm.patientEmergencyDetails.dispatchedAt | date:'medium' }}</strong></div>
+            }
+          </div>
+          @if (vm.patientEmergencyDetails.description) {
+            <div class="notes-section">
+              <strong>Description:</strong>
+              <p>{{ vm.patientEmergencyDetails.description }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="treatments-card">
+      <div class="section-header">
+        <h3>Treatment History</h3>
+      </div>
+
+      <div class="treatments-list">
+        @for (t of vm.patientTreatments; track t.treatmentId) {
+          <div class="treatment-item">
+            <div class="treatment-header">
+              <span class="treatment-id">#{{ t.treatmentId }}</span>
+              <span class="treatment-status" [class]="t.status.toLowerCase()">{{ t.status }}</span>
+            </div>
+            <p class="treatment-desc"><strong>Description:</strong> {{ t.description }}</p>
+            @if (t.medicationName) {
+              <p class="treatment-med"><strong>Medication:</strong> {{ t.medicationName }} - {{ t.dosage }}</p>
+            }
+            <p class="treatment-date"><strong>Start Date:</strong> {{ t.startDate | date:'medium' }}</p>
+            @if (t.endDate) {
+              <p class="treatment-date"><strong>End Date:</strong> {{ t.endDate | date:'medium' }}</p>
+            }
+          </div>
+        }
+        @empty {
+          <p class="empty">No treatments recorded yet</p>
+        }
+      </div>
+    </div>
+  </div>
+}

@@ -155,7 +155,7 @@ export class AdminUsersTab {
     });
   }
 
-  trackByUserId(index: number, user: User): number {
+  trackByUserId(_index: number, user: User): number {
     return user.userId || user.id;
   }
 

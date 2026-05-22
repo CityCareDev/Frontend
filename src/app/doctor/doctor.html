@@ -1,0 +1,366 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard fade-in">
+  <aside class="sidebar">
+    <nav>
+      <button [class.active]="activeTab==='overview'" (click)="setTab('overview')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><rect x='3' y='3' width='18' height='18' rx='2' ry='2'></rect><line x1='3' y1='9' x2='21' y2='9'></line><line x1='9' y1='21' x2='9' y2='9'></line></svg></span> Overview
+      </button>
+      <button [class.active]="activeTab==='patients'" (click)="setTab('patients')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16'></path><path d='M12 9v4'></path><path d='M10 11h4'></path></svg></span> Patients
+        @if (unassignedPatients.length > 0) {
+          <span class="badge">{{ unassignedPatients.length > 99 ? '99+' : unassignedPatients.length }}</span>
+        }
+      </button>
+      <button [class.active]="activeTab==='myPatients'" (click)="setTab('myPatients')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg></span> My Patients
+      </button>
+      <button [class.active]="activeTab==='myTreatments'" (click)="setTab('myTreatments')">
+        <span><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='m18 2 4 4'></path><path d='m17 7 3-3'></path><path d='M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5'></path><path d='m9 11 4 4'></path><path d='m5 19-3 3'></path><path d='m14 4 6 6'></path></svg></span> My Treatments
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content">
+
+    @if (activeTab === 'overview') {
+      <div class="page-header">
+        <h2>Hello, {{ auth.getUser()?.name || 'Doctor' }}</h2>
+        <p>Manage patients and treatment records</p>
+        @if (staffFacilityName) {
+          <div class="facility-highlight" title="Your assigned hospital">
+            <span class="facility-label">Hospital</span>
+            <strong class="facility-name">{{ staffFacilityName }}</strong>
+          </div>
+        }
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card green card-interactive" (click)="setTab('patients')">
+          <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16'></path><path d='M12 9v4'></path><path d='M10 11h4'></path></svg></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ patients.length }}</span>
+            <span class="stat-label">Total Patients</span>
+          </div>
+        </div>
+        <div class="stat-card blue card-interactive" (click)="setTab('myPatients')">
+          <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ overviewKpis.activePatients }}</span>
+            <span class="stat-label">Active Patients</span>
+          </div>
+        </div>
+        <div class="stat-card purple card-interactive" (click)="setTab('myTreatments')">
+          <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><path d='M12 2v20M2 12h20'></path></svg></div>
+          <div class="stat-info">
+            <span class="stat-value">{{ myTreatments.length }}</span>
+            <span class="stat-label">My Treatments</span>
+          </div>
+        </div>
+      </div>
+
+    }
+
+    @if (activeTab === 'patients') {
+      <div class="page-header"><h2>Patients</h2></div>
+
+      <div class="table-card">
+        <div class="section-header"><h3>Unassigned Patients ({{ unassignedPatients.length }})</h3></div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Citizen ID</th><th>Facility ID</th><th>Ward</th><th>Admitted</th><th>Status</th><th>Assigned Doctor</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            @for (p of unassignedPatients; track p.patientId) {
+              <tr>
+                <td>#{{ p.patientId }}</td>
+                <td>{{ p.citizenId }}</td>
+                <td>{{ p.facilityId || 'N/A' }}</td>
+                <td>{{ p.ward || 'N/A' }}</td>
+                <td>{{ p.admissionDate | date }}</td>
+                <td><span class="status-badge" [class]="p.status.toLowerCase()">{{ p.status }}</span></td>
+                <td><strong>{{ getAssignedDoctorName(p.patientId) }}</strong></td>
+                <td>
+                  <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:stretch;">
+                    <button class="btn-sm btn-info" style="min-width: 100px;" (click)="togglePatientDetails(p)">View Details</button>
+                  </div>
+                </td>
+              </tr>
+            }
+            @empty { <tr><td colspan="8" class="empty">No unassigned patients</td></tr> }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="section-header"><h3>Assigned Patients ({{ assignedPatients.length }})</h3></div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Citizen ID</th><th>Facility ID</th><th>Ward</th><th>Admitted</th><th>Status</th><th>Assigned Doctor</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            @for (p of assignedPatients; track p.patientId) {
+              <tr>
+                <td>#{{ p.patientId }}</td>
+                <td>{{ p.citizenId }}</td>
+                <td>{{ p.facilityId || 'N/A' }}</td>
+                <td>{{ p.ward || 'N/A' }}</td>
+                <td>{{ p.admissionDate | date }}</td>
+                <td><span class="status-badge" [class]="p.status.toLowerCase()">{{ p.status }}</span></td>
+                <td><strong>{{ getAssignedDoctorName(p.patientId) }}</strong></td>
+                <td>
+                  <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:stretch;">
+                    <button class="btn-sm btn-info" style="min-width: 100px;" (click)="togglePatientDetails(p)">View Details</button>
+                  </div>
+                </td>
+              </tr>
+            }
+            @empty { <tr><td colspan="8" class="empty">No assigned patients</td></tr> }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (activeTab === 'patientDetail' && selectedPatient) {
+      <div class="page-header">
+        <h2>Patient #{{ selectedPatient.patientId }}</h2>
+        <button class="btn-back" (click)="backToPatients()">← Back</button>
+      </div>
+
+      <div class="patient-detail-view">
+        <div class="info-cards-grid">
+          <div class="detail-card">
+            <h3><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16'></path><path d='M12 9v4'></path><path d='M10 11h4'></path></svg> Patient Information</h3>
+            <div class="detail-grid">
+              <div class="detail-item"><span>Patient ID:</span><strong>#{{ selectedPatient.patientId }}</strong></div>
+              <div class="detail-item"><span>Citizen ID:</span><strong>{{ selectedPatient.citizenId }}</strong></div>
+              <div class="detail-item"><span>Emergency ID:</span><strong>{{ selectedPatient.emergencyId }}</strong></div>
+              <div class="detail-item"><span>Facility ID:</span><strong>{{ selectedPatient.facilityId || 'N/A' }}</strong></div>
+              <div class="detail-item"><span>Assigned Doctor:</span><strong>{{ getAssignedDoctorName(selectedPatient.patientId) }}</strong></div>
+              <div class="detail-item"><span>Ward:</span><strong>{{ selectedPatient.ward || 'N/A' }}</strong></div>
+              <div class="detail-item"><span>Admission Date:</span><strong>{{ selectedPatient.admissionDate | date }}</strong></div>
+              <div class="detail-item"><span>Status:</span><span class="status-badge" [class]="selectedPatient.status.toLowerCase()" [class.status-highlight]="statusHighlight">{{ selectedPatient.status }}</span></div>
+              @if (selectedPatient.status !== 'DISCHARGED' && assignedPatientIds.has(selectedPatient.patientId)) {
+                <div class="detail-item">
+                  <span>Update Status:</span>
+                  <div style="display:flex;gap:0.5rem">
+                    @if (selectedPatient.status !== 'UNDER_OBSERVATION') {
+                      <button class="btn-sm btn-warning" (click)="updatePatientStatus(selectedPatient.patientId, $any('UNDER_OBSERVATION'))">
+                        <svg class='icon' viewBox='0 0 24 24' width='1em' height='1em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg>
+                        Mark Under Observation
+                      </button>
+                    }
+                    @if (selectedPatient.status !== 'STABLE') {
+                      <button class="btn-sm btn-success" (click)="updatePatientStatus(selectedPatient.patientId, $any('STABLE'))">
+                        <svg class='icon' viewBox='0 0 24 24' width='1em' height='1em' stroke='currentColor' stroke-width='2' fill='none'><polyline points='20 6 9 17 4 12'></polyline></svg>
+                        Mark Stable
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            @if (selectedPatient.notes) {
+              <div class="notes-section">
+                <strong>Admission Notes:</strong>
+                <p>{{ selectedPatient.notes }}</p>
+              </div>
+            }
+          </div>
+
+          @if (citizenDetails) {
+            <div class="detail-card">
+              <h3><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'></path><circle cx='12' cy='7' r='4'></circle></svg> Citizen Information</h3>
+              <div class="detail-grid">
+                <div class="detail-item"><span>Name:</span><strong>{{ citizenDetails.name }}</strong></div>
+                <div class="detail-item"><span>Contact:</span><strong>{{ citizenDetails.contactInfo }}</strong></div>
+              </div>
+            </div>
+          }
+
+          @if (emergencyDetails) {
+            <div class="detail-card emergency-card">
+              <h3><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg> Emergency Details</h3>
+              <div class="detail-grid">
+                <div class="detail-item"><span>Type:</span><strong class="emergency-type">{{ emergencyDetails.type }}</strong></div>
+                <div class="detail-item"><span>Location:</span><strong>{{ emergencyDetails.location }}</strong></div>
+                <div class="detail-item"><span>Reported At:</span><strong>{{ emergencyDetails.createdAt | date:'medium' }}</strong></div>
+                <div class="detail-item"><span>Dispatched At:</span><strong>{{ emergencyDetails.dispatchedAt | date:'medium' }}</strong></div>
+              </div>
+              @if (emergencyDetails.description) {
+                <div class="notes-section">
+                  <strong>Description:</strong>
+                  <p>{{ emergencyDetails.description }}</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="treatments-card">
+          @if (isPatientUnassigned(selectedPatient) && selectedPatient.status !== 'DISCHARGED' && showTreatmentForm !== selectedPatient.patientId) {
+            <div class="assignment-guidance" style="background: #eef6ff; border: 2px dashed #4a90d9; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; text-align: center;">
+              <p style="color: #1a5276; font-size: 1rem; margin-bottom: 0.75rem;"><strong>This patient is not yet assigned to any doctor.</strong> Adding a treatment will automatically assign this patient to you.</p>
+              <button class="btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;" (click)="openTreatmentForm(selectedPatient)">
+                <svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><path d='M12 2v20M2 12h20'></path></svg>
+                Add Treatment &amp; Assign to Me
+              </button>
+            </div>
+          }
+          <div class="section-header">
+            <h3>Treatment History</h3>
+            @if (assignedPatientIds.has(selectedPatient.patientId) && showTreatmentForm !== selectedPatient.patientId && selectedPatient.status !== 'DISCHARGED') {
+              <button class="btn-primary" (click)="openTreatmentForm(selectedPatient)"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><path d='M12 2v20M2 12h20'></path></svg> Add Treatment</button>
+            }
+          </div>
+
+          @if (showTreatmentForm === selectedPatient.patientId) {
+            <div class="treatment-form">
+              @if (errorMsg) { <div class="alert error">{{ errorMsg }}</div> }
+              <form (ngSubmit)="submitTreatment()">
+                <div class="form-group">
+                  <label>Description / Diagnosis</label>
+                  <textarea [(ngModel)]="treatmentForm.description" name="description" rows="3" placeholder="Describe the treatment..." required></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Medication Name</label>
+                    <input type="text" [(ngModel)]="treatmentForm.medicationName" name="medicationName" placeholder="e.g. Paracetamol" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Dosage</label>
+                    <input type="text" [(ngModel)]="treatmentForm.dosage" name="dosage" placeholder="e.g. 500mg twice daily" required />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary" [disabled]="isSubmittingTreatment"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><path d='M12 2v20M2 12h20'></path></svg> {{ isSubmittingTreatment ? 'Adding...' : 'Add Treatment' }}</button>
+                  <button type="button" class="btn-secondary" (click)="closeTreatmentForm()">✕ Cancel</button>
+                </div>
+              </form>
+            </div>
+          }
+
+          <div class="treatments-list">
+            @for (t of patientTreatments; track t.treatmentId) {
+              <div class="treatment-item">
+                <div class="treatment-header">
+                  <span class="treatment-id">#{{ t.treatmentId }}</span>
+                  <span class="treatment-status" [class]="t.status.toLowerCase()">{{ t.status }}</span>
+                </div>
+                <p class="treatment-desc"><strong>Description:</strong> {{ t.description }}</p>
+                @if (t.medicationName) {
+                  <p class="treatment-med"><strong>Medication:</strong> {{ t.medicationName }} - {{ t.dosage }}</p>
+                }
+                <p class="treatment-date"><strong>Date:</strong> {{ t.startDate || t.date | date }}</p>
+                @if (t.status === 'ONGOING') {
+                  <div class="treatment-actions">
+                    <button class="btn-sm btn-success" [disabled]="isTreatmentUpdateInFlight(t.treatmentId)" (click)="updateTreatmentStatus(t.treatmentId, 'COMPLETED')"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><polyline points='20 6 9 17 4 12'></polyline></svg> {{ isTreatmentUpdateInFlight(t.treatmentId) ? 'Updating...' : 'Complete' }}</button>
+                    <button class="btn-sm btn-danger" [disabled]="isTreatmentUpdateInFlight(t.treatmentId)" (click)="updateTreatmentStatus(t.treatmentId, 'CANCELLED')">{{ isTreatmentUpdateInFlight(t.treatmentId) ? 'Updating...' : '✕ Cancel' }}</button>
+                  </div>
+                }
+              </div>
+            }
+            @empty {
+              <p class="empty">No treatments recorded yet</p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab === 'myPatients') {
+      <div class="page-header"><h2>My Patients</h2></div>
+
+      <div class="filter-section">
+        <label>Filter Active Patients by Status:</label>
+        <select [(ngModel)]="myPatientsStatusFilter" (change)="onMyPatientsFilterChange()" class="filter-select">
+          <option value="ALL">All Active Patients</option>
+          <option value="UNDER_OBSERVATION">Under Observation</option>
+          <option value="STABLE">Stable</option>
+        </select>
+      </div>
+
+      <div class="table-card">
+        <div class="section-header"><h3>  Active Patients ({{ filteredMyPatients.length }})</h3></div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Citizen ID</th><th>Facility ID</th><th>Ward</th><th>Admitted</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            @for (p of filteredMyPatients; track p.patientId) {
+              <tr>
+                <td>#{{ p.patientId }}</td>
+                <td>{{ p.citizenId }}</td>
+                <td>{{ p.facilityId || 'N/A' }}</td>
+                <td>{{ p.ward || 'N/A' }}</td>
+                <td>{{ p.admissionDate | date }}</td>
+                <td><span class="status-badge" [class]="p.status.toLowerCase()">{{ p.status }}</span></td>
+                <td>
+                  <button class="btn-sm btn-info" style="min-width: 100px;" (click)="togglePatientDetails(p)">View Details</button>
+                </td>
+              </tr>
+            }
+            @empty { <tr><td colspan="7" class="empty">No active patients assigned to you</td></tr> }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-card">
+        <div class="section-header"><h3>  Discharged Patients ({{ dischargedMyPatients.length }})</h3></div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Citizen ID</th><th>Facility ID</th><th>Ward</th><th>Admitted</th><th>Discharged</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            @for (p of dischargedMyPatients; track p.patientId) {
+              <tr>
+                <td>#{{ p.patientId }}</td>
+                <td>{{ p.citizenId }}</td>
+                <td>{{ p.facilityId || 'N/A' }}</td>
+                <td>{{ p.ward || 'N/A' }}</td>
+                <td>{{ p.admissionDate | date }}</td>
+                <td>{{ p.dischargeDate ? (p.dischargeDate | date) : 'N/A' }}</td>
+                <td>
+                  <button class="btn-sm btn-info" style="min-width: 100px;" (click)="togglePatientDetails(p)">View Details</button>
+                </td>
+              </tr>
+            }
+            @empty { <tr><td colspan="7" class="empty">No discharged patients</td></tr> }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (activeTab === 'myTreatments') {
+      <div class="page-header"><h2>My Treatments</h2></div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Patient ID</th><th>Description</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            @for (t of myTreatments; track t.treatmentId) {
+              <tr>
+                <td>#{{ t.treatmentId }}</td>
+                <td>{{ t.patientId }}</td>
+                <td>{{ t.description }}</td>
+                <td>{{ (t.startDate || t.date) ? ((t.startDate || t.date) | date) : 'N/A' }}</td>
+                <td>{{ t.endDate ? (t.endDate | date) : 'ongoing' }}</td>
+                <td><span class="status-badge" [class]="t.status.toLowerCase()">{{ t.status }}</span></td>
+                <td>
+                  @if (t.status === 'ONGOING') {
+                    <div style="display:flex;gap:0.5rem">
+                      <button class="btn-sm btn-success" [disabled]="isTreatmentUpdateInFlight(t.treatmentId)" (click)="updateTreatmentStatus(t.treatmentId, 'COMPLETED')"><svg class='icon' viewBox='0 0 24 24' width='1em' height='1em' stroke='currentColor' stroke-width='2' fill='none'><polyline points='20 6 9 17 4 12'></polyline></svg> {{ isTreatmentUpdateInFlight(t.treatmentId) ? 'Updating...' : 'Complete' }}</button>
+                      <button class="btn-sm btn-danger" [disabled]="isTreatmentUpdateInFlight(t.treatmentId)" (click)="updateTreatmentStatus(t.treatmentId, 'CANCELLED')">{{ isTreatmentUpdateInFlight(t.treatmentId) ? 'Updating...' : '✕ Cancel' }}</button>
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+            @empty { <tr><td colspan="7" class="empty">No treatments recorded</td></tr> }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  </main>
+</div>

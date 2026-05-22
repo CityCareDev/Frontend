@@ -1,0 +1,332 @@
+
+/* ============================================<
+   Enterprise Dashboard Theme - DOCTOR
+   ============================================ */
+
+@import '../citizen/citizen.css';
+
+.sidebar button.active {
+  background-color: #dcfce7;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.sidebar button:hover {
+  background-color: var(--gray-100);
+}
+
+.btn-primary {
+  background-color: #16a34a;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #15803d;
+}
+
+.page-header h2 {
+  color: #16a34a;
+}
+
+.facility-highlight {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid #86efac;
+  background: #f0fdf4;
+  box-shadow: 0 1px 2px rgba(22, 163, 74, 0.12);
+}
+
+.facility-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #166534;
+  font-weight: 700;
+}
+
+.facility-name {
+  font-size: 1rem;
+  color: #14532d;
+  font-weight: 800;
+}
+
+.notification-item.unread {
+  border-left: 4px solid #16a34a;
+  background-color: #dcfce7;
+}
+
+.btn-read {
+  background-color: #16a34a;
+  color: white;
+}
+
+.btn-read:hover {
+  background-color: #15803d;
+}
+
+.detail-card, .user-management-card, .treatments-card {
+  border-top: 4px solid #16a34a;
+}
+
+.detail-card h3, .section-header h3 {
+  color: #16a34a;
+}
+
+.emergency-card {
+  border-left: 4px solid #ef4444;
+}
+
+.emergency-card h3, .emergency-type {
+  color: #ef4444;
+}
+/* Dark Mode Role Overrides */
+:host-context([data-theme="dark"]) .sidebar button.active { color: var(--gray-900) !important; }
+
+:host-context([data-theme="dark"]) .notification-item.unread { background-color: var(--gray-200) !important; }
+:host-context([data-theme="dark"]) .facility-highlight {
+  background: #0f2e1f;
+  border-color: #166534;
+}
+
+:host-context([data-theme="dark"]) .facility-label {
+  color: #86efac;
+}
+
+:host-context([data-theme="dark"]) .facility-name {
+  color: #dcfce7;
+}
+
+/* ============================================
+   Doctor Overview V1 Analytics
+   ============================================ */
+.overview-kpi-grid {
+  margin-top: var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.mini-kpi-card {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.mini-kpi-card.warning { border-left: 4px solid #f59e0b; }
+.mini-kpi-card.success { border-left: 4px solid #10b981; }
+.mini-kpi-card.info { border-left: 4px solid #3b82f6; }
+
+.mini-kpi-label {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
+.mini-kpi-value {
+  color: #16a34a;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.overview-analytics-grid {
+  margin-top: var(--space-5);
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: var(--space-5);
+}
+
+.overview-panel {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  gap: 0.75rem;
+}
+
+.panel-header h3 {
+  color: #16a34a;
+  margin: 0;
+}
+
+.panel-subtext {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
+.treatment-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: end;
+  min-height: 220px;
+  padding-top: var(--space-3);
+}
+
+.chart-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chart-value {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  font-weight: 700;
+  min-height: 1rem;
+}
+
+.chart-bar-wrap {
+  width: 100%;
+  height: 145px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(to top, #dcfce7, #ecfdf5);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.chart-bar {
+  width: 100%;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+  transition: height 0.25s ease;
+  min-height: 4%;
+}
+
+.chart-label {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  font-weight: 700;
+}
+
+.priority-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.queue-item {
+  border: 1px solid var(--gray-200);
+  border-left: 4px solid #f59e0b;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.queue-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.88rem;
+}
+
+.queue-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.activity-standalone {
+  margin-top: var(--space-5);
+}
+
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.activity-item {
+  border-left: 4px solid var(--gray-300);
+  background: #fafafa;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 0.65rem 0.8rem;
+}
+
+.activity-item.info { border-left-color: #3b82f6; }
+.activity-item.warning { border-left-color: #f59e0b; }
+.activity-item.success { border-left-color: #10b981; }
+
+.activity-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.activity-message {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--gray-800);
+}
+
+.activity-meta {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
+.empty-activity {
+  color: var(--gray-500);
+  font-style: italic;
+  padding: var(--space-2) 0;
+}
+
+@media (max-width: 1024px) {
+  .overview-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .overview-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .overview-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+:host-context([data-theme="dark"]) .mini-kpi-card,
+:host-context([data-theme="dark"]) .overview-panel,
+:host-context([data-theme="dark"]) .queue-item {
+  background: var(--gray-100);
+  border-color: var(--gray-200);
+}
+
+:host-context([data-theme="dark"]) .chart-bar-wrap {
+  background: linear-gradient(to top, #14532d, #0f2e1f);
+}
+
+:host-context([data-theme="dark"]) .activity-item {
+  background: var(--gray-200);
+}

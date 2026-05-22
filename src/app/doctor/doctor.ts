@@ -198,7 +198,7 @@ export class DoctorDashboard implements OnInit {
         this.refreshOverviewInsights();
         this.cdr.detectChanges();
       },
-      error: (err) => this.toastService.showError('Failed to load treatments')
+      error: () => this.toastService.showError('Failed to load treatments')
     });
   }
 

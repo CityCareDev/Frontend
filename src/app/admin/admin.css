@@ -358,6 +358,40 @@
 .form-group input.ng-invalid.ng-touched,
 .form-group select.ng-invalid.ng-touched { border-color: #dc2626; }
 
+.list-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 0.25rem 0.25rem;
+  flex-wrap: wrap;
+}
+
+.pagination-summary {
+  color: var(--admin-text-body);
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.pagination-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--admin-text-muted);
+  font-size: 0.88rem;
+}
+
+.pagination-controls select {
+  min-width: 70px;
+  padding: 0.3rem 0.45rem;
+}
+
 /* Ambulance delete button */
 .btn-delete-ambulance {
   width: 28px;

@@ -2,7 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Facility, FacilityRequest, Ambulance, AmbulanceRequest, FacilityStatus } from '../../models/facility.model';
-import { ApiResponse } from '../../models/api-response.model';
+import { ApiResponse, PageResponse } from '../../models/api-response.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -16,9 +16,30 @@ export class FacilityService {
       .pipe(map(res => res.data));
   }
 
-  getAllFacilities(): Observable<Facility[]> {
-    return this.http.get<ApiResponse<Facility[]>>(this.API)
-      .pipe(map(res => res.data));
+  getAllFacilities(page = 0, size = 1000): Observable<Facility[]> {
+    return this.http.get<ApiResponse<Facility[] | PageResponse<Facility>>>(`${this.API}?page=${page}&size=${size}`)
+      .pipe(map(res => Array.isArray(res.data) ? res.data : (res.data?.content ?? [])));
+  }
+
+  getAllFacilitiesPage(page = 0, size = 10): Observable<PageResponse<Facility>> {
+    return this.http.get<ApiResponse<Facility[] | PageResponse<Facility>>>(`${this.API}?page=${page}&size=${size}`)
+      .pipe(map(res => {
+        if (Array.isArray(res.data)) {
+          const content = res.data;
+          const totalElements = content.length;
+          return {
+            content,
+            totalElements,
+            totalPages: totalElements > 0 ? 1 : 0,
+            number: 0,
+            size: totalElements,
+            first: true,
+            last: true,
+            empty: totalElements === 0
+          } as PageResponse<Facility>;
+        }
+        return res.data;
+      }));
   }
 
   getFacilityById(id: number): Observable<Facility> {

@@ -129,3 +129,23 @@
     </tbody>
   </table>
 </div>
+
+<div class="list-pagination" *ngIf="facilityTotalElements > 0">
+  <div class="pagination-summary">
+    Showing {{ facilityRangeStart }} - {{ facilityRangeEnd }} of {{ facilityTotalElements }} facilities
+  </div>
+  <div class="pagination-controls">
+    <label>
+      Page size:
+      <select [ngModel]="facilitySize" (ngModelChange)="onFacilityPageSizeChange($event)">
+        <option [ngValue]="5">5</option>
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+        <option [ngValue]="50">50</option>
+      </select>
+    </label>
+    <button class="btn-secondary" (click)="goToPreviousFacilityPage()" [disabled]="facilityPage === 0">Previous</button>
+    <span>Page {{ facilityTotalPages === 0 ? 0 : (facilityPage + 1) }} of {{ facilityTotalPages }}</span>
+    <button class="btn-secondary" (click)="goToNextFacilityPage()" [disabled]="facilityPage + 1 >= facilityTotalPages">Next</button>
+  </div>
+</div>

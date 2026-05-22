@@ -155,7 +155,8 @@ export class Navbar {
 
     const facilities$ = this.http.get<any>(`${environment.apiBaseUrl}/facilities`, { headers: this.headers }).pipe(
       map(res => {
-        const raw = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+        const payload = res?.data ?? res;
+        const raw = Array.isArray(payload) ? payload : (payload?.content ?? []);
         return raw
           .filter((f: any) => String(f?.name ?? '').toLowerCase().includes(lower) || String(f?.location ?? '').toLowerCase().includes(lower))
           .slice(0, 4)
@@ -171,7 +172,8 @@ export class Navbar {
 
     const patients$ = this.http.get<any>(`${environment.apiBaseUrl}/patients`, { headers: this.headers }).pipe(
       map(res => {
-        const raw = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
+        const payload = res?.data ?? res;
+        const raw = Array.isArray(payload) ? payload : (payload?.content ?? []);
         return raw
           .filter((p: any) => String(p?.patientId ?? '').includes(query) || String(p?.status ?? '').toLowerCase().includes(lower))
           .slice(0, 3)

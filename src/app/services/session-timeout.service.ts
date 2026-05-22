@@ -1,5 +1,4 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 
@@ -13,7 +12,6 @@ export class SessionTimeoutService {
 
   constructor(
     private auth: AuthService,
-    private router: Router,
     private toast: ToastService,
     private ngZone: NgZone
   ) {}

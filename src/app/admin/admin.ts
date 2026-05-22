@@ -54,7 +54,6 @@ import { AdminOverviewTab } from './tabs/admin-overview-tab';
 })
 export class AdminDashboard implements OnInit, OnDestroy {
   activeTab = 'overview';
-  selectedFacility: Facility | null = null;
 
   // Simple local state (no facade)
   facilities: Facility[] = [];
@@ -62,6 +61,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
   ambulances: Ambulance[] = [];
 
   patients: Patient[] = [];
+  patientPage = 0;
+  patientSize = 10;
+  patientTotalPages = 0;
+  patientTotalElements = 0;
   patientDoctorMap: Map<number, string> = new Map();
   private citizenNameCache: Map<number, string> = new Map();
   dispatchedEmergencies: any[] = [];
@@ -206,11 +209,26 @@ export class AdminDashboard implements OnInit, OnDestroy {
     });
   }
 
-  loadPatients() {
-    this.http.get<any>(`${environment.apiBaseUrl}/patients`, { headers: this.headers })
+  loadPatients(page: number = this.patientPage) {
+    this.http.get<any>(`${environment.apiBaseUrl}/patients?page=${page}&size=${this.patientSize}`, { headers: this.headers })
       .subscribe({
         next: d => {
-          this.patients = d?.data ?? d;
+          const payload = d?.data ?? d;
+          const pageData = Array.isArray(payload)
+            ? {
+                content: payload,
+                number: 0,
+                size: payload.length,
+                totalPages: payload.length > 0 ? 1 : 0,
+                totalElements: payload.length
+              }
+            : payload;
+
+          this.patientPage = pageData?.number ?? 0;
+          this.patientSize = pageData?.size ?? this.patientSize;
+          this.patientTotalPages = pageData?.totalPages ?? 0;
+          this.patientTotalElements = pageData?.totalElements ?? 0;
+          this.patients = pageData?.content ?? [];
           // Collect unique citizenIds that aren't cached yet
           const uncachedCitizenIds = [...new Set(this.patients.map(p => p.citizenId))]
             .filter(id => !this.citizenNameCache.has(id));
@@ -242,8 +260,39 @@ export class AdminDashboard implements OnInit, OnDestroy {
           });
           this.cdr.detectChanges();
         },
-        error: () => {}
+        error: () => {
+          this.patientPage = 0;
+          this.patientTotalPages = 0;
+          this.patientTotalElements = 0;
+          this.patients = [];
+          this.cdr.markForCheck();
+        }
       });
+  }
+
+  goToPreviousPatientPage() {
+    if (this.patientPage <= 0) return;
+    this.loadPatients(this.patientPage - 1);
+  }
+
+  goToNextPatientPage() {
+    if (this.patientPage + 1 >= this.patientTotalPages) return;
+    this.loadPatients(this.patientPage + 1);
+  }
+
+  onPatientPageSizeChange(size: string | number) {
+    const parsed = Number(size);
+    this.patientSize = Number.isFinite(parsed) && parsed > 0 ? parsed : 10;
+    this.loadPatients(0);
+  }
+
+  get patientRangeStart(): number {
+    if (this.patientTotalElements === 0) return 0;
+    return (this.patientPage * this.patientSize) + 1;
+  }
+
+  get patientRangeEnd(): number {
+    return Math.min((this.patientPage + 1) * this.patientSize, this.patientTotalElements);
   }
 
   loadAssignedDoctor(patientId: number) {
@@ -371,10 +420,11 @@ export class AdminDashboard implements OnInit, OnDestroy {
         next: d => {
           const allDispatched = d?.data ?? d;
           // Filter out emergencies that are already admitted by checking if patient exists
-          this.http.get<any>(`${environment.apiBaseUrl}/patients`, { headers: this.headers })
+          this.http.get<any>(`${environment.apiBaseUrl}/patients?page=0&size=1000`, { headers: this.headers })
             .subscribe({
               next: patientsRes => {
-                const patients = patientsRes?.data ?? patientsRes;
+                const patientsPayload = patientsRes?.data ?? patientsRes;
+                const patients = Array.isArray(patientsPayload) ? patientsPayload : (patientsPayload?.content ?? []);
                 const admittedEmergencyIds = patients.map((p: any) => p.emergencyId);
                 this.dispatchedEmergencies = allDispatched.filter((e: any) =>
                   !admittedEmergencyIds.includes(e.emergencyId)
@@ -537,7 +587,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
           this.isLoadingDocument = false;
           this.cdr.markForCheck();
         },
-        error: (err: any) => {
+        error: () => {
           this.toastService.showError('Failed to load document');
           this.isLoadingDocument = false;
           this.cdr.markForCheck();

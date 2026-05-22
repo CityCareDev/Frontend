@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface PendingCitizen {
@@ -31,7 +31,8 @@ export class VerificationService {
       this.http.get<any>(this.API)
         .subscribe({
           next: res => {
-            const citizens = res?.data ?? res;
+            const payload = res?.data ?? res;
+            const citizens = Array.isArray(payload) ? payload : (payload?.content ?? []);
             const pendingList: PendingCitizen[] = [];
             let totalPending = 0;
             let processed = 0;

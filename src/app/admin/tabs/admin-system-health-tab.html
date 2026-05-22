@@ -1,0 +1,42 @@
+<div class="page-header">
+  <h2>System Health Command Center</h2>
+  <div class="page-header-actions">
+    @if (systemHealthLastUpdated) {
+      <small class="health-updated">Updated {{ systemHealthLastUpdated | date:'shortTime' }}</small>
+    }
+    <button class="btn-secondary" (click)="loadSystemHealth()" [disabled]="systemHealthLoading">
+      {{ systemHealthLoading ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+</div>
+
+<div class="overview-kpi-grid health-kpis">
+  <div class="mini-kpi-card success">
+    <span class="mini-kpi-label">Services UP</span>
+    <strong class="mini-kpi-value">{{ upServicesCount }}</strong>
+  </div>
+  <div class="mini-kpi-card warning">
+    <span class="mini-kpi-label">Services DOWN</span>
+    <strong class="mini-kpi-value">{{ downServicesCount }}</strong>
+  </div>
+  <div class="mini-kpi-card info">
+    <span class="mini-kpi-label">Avg Response</span>
+    <strong class="mini-kpi-value">{{ averageResponseMs }} ms</strong>
+  </div>
+</div>
+
+<div class="health-grid">
+  @for (service of systemServices; track service.key) {
+    <article class="health-card" [class]="service.status === 'UP' ? 'health-card up' : 'health-card down'">
+      <div class="health-card-header">
+        <h3>{{ service.label }}</h3>
+        <span class="status-badge" [class]="service.status.toLowerCase()">{{ service.status }}</span>
+      </div>
+      <p class="health-url">{{ service.endpoint }}</p>
+      <div class="health-metrics">
+        <span>Latency: <strong>{{ service.responseMs ?? 'N/A' }} ms</strong></span>
+        <span>Detail: <strong>{{ service.details || 'Unknown' }}</strong></span>
+      </div>
+    </article>
+  }
+</div>

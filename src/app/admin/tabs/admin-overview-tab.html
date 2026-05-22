@@ -1,0 +1,52 @@
+<div class="page-header">
+  <h2>Hello, {{ vm.auth.getUser()?.name || 'Admin' }}</h2>
+  <p>Manage facilities, staff, ambulances and patients</p>
+</div>
+<div class="stats-grid">
+  <div class="stat-card purple card-interactive" (click)="vm.setTab('facilities')">
+    <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16'></path><path d='M12 9v4'></path><path d='M10 11h4'></path></svg></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ vm.facilities.length }}</span>
+      <span class="stat-label">Facilities</span>
+    </div>
+  </div>
+  <div class="stat-card blue card-interactive" (click)="vm.setTab('users')">
+    <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'></path><circle cx='9' cy='7' r='4'></circle><path d='M23 21v-2a4 4 0 0 0-3-3.87'></path><path d='M16 3.13a4 4 0 0 1 0 7.75'></path></svg></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ vm.users.length }}</span>
+      <span class="stat-label">Registered Users</span>
+    </div>
+  </div>
+  <div class="stat-card green card-interactive" (click)="vm.setTab('patientsManagement')">
+    <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M2 4v16'></path><path d='M2 8h18a2 2 0 0 1 2 2v10'></path><path d='M2 17h20'></path><path d='M6 8v9'></path></svg></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ vm.patients.length }}</span>
+      <span class="stat-label">Patients</span>
+    </div>
+  </div>
+  <div class="stat-card yellow card-interactive" (click)="vm.setTab('ambulances')">
+    <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M16 3h-8v5h-5v8h5v5h8v-5h5v-8h-5v-3z'/></svg></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ vm.ambulances.length }}</span>
+      <span class="stat-label">Ambulances</span>
+    </div>
+  </div>
+  <div class="stat-card card-interactive"
+       [ngClass]="vm.dispatchedEmergencies.length > 0 ? 'green blink-alert' : ''"
+       (click)="vm.navigateToAdmitPatient()">
+    <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12.01' y2='16'></line></svg></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ vm.dispatchedEmergencies.length }}</span>
+      <span class="stat-label">Awaiting Admission</span>
+    </div>
+  </div>
+  <div class="stat-card card-interactive"
+       [ngClass]="((vm.pendingCount$ | async) ?? 0) > 0 ? 'orange' : ''"
+       (click)="vm.navigateToPendingDocs()">
+    <div class="stat-icon"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'></path><polyline points='14 2 14 8 20 8'></polyline></svg></div>
+    <div class="stat-info">
+      <span class="stat-value">{{ vm.pendingCount$ | async }}</span>
+      <span class="stat-label">Pending Verifications</span>
+    </div>
+  </div>
+</div>

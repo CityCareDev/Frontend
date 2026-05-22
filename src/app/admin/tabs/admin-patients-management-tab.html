@@ -1,0 +1,120 @@
+<div class="page-header">
+  <h2>Patients Management</h2>
+  @if (vm.dispatchedEmergencies.length > 0) {
+    <button class="btn-primary admit-patient-alert" (click)="vm.toggleAdmitPatient()">
+      <svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><line x1='12' y1='5' x2='12' y2='19'></line><line x1='5' y1='12' x2='19' y2='12'></line></svg>
+      Admit Patient
+      <span class="badge badge-offset">{{ vm.dispatchedEmergencies.length }}</span>
+    </button>
+  }
+</div>
+
+@if (vm.showAdmitPatient && vm.dispatchedEmergencies.length > 0) {
+  <div class="form-card">
+    <h3 class="section-title">Select Emergency to Admit</h3>
+    <div class="table-card mb-section">
+      <table>
+        <thead><tr><th>Emergency ID</th><th>Type</th><th>Location</th><th>Reported By</th><th>Citizen ID</th><th>Ambulance</th><th>Facility</th><th>Dispatched At</th><th>Action</th></tr></thead>
+        <tbody>
+          @for (e of vm.dispatchedEmergencies; track e.emergencyId) {
+            <tr>
+              <td>#{{ e.emergencyId }}</td>
+              <td><span class="type-tag">{{ e.type }}</span></td>
+              <td>{{ e.location }}</td>
+              <td><strong>{{ e.reportedBy || 'Loading...' }}</strong></td>
+              <td>#{{ e.citizenId }}</td>
+              <td>{{ e.ambulance?.vehicleNumber || 'N/A' }}</td>
+              <td>{{ e.ambulance?.facilityId ? vm.getFacilityName(e.ambulance.facilityId) : 'Unassigned' }}</td>
+              <td>{{ e.dispatchedAt | date:'short' }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-sm btn-success row-action-button" (click)="vm.prepareAdmit(e)"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M2 4v16'></path><path d='M2 8h18a2 2 0 0 1 2 2v10'></path><path d='M2 17h20'></path><path d='M6 8v9'></path></svg> Admit</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (vm.admitForm.emergencyId > 0) {
+      <h3>Admission Form</h3>
+      @if (vm.errorMsg) { <div class="alert error">{{ vm.errorMsg }}</div> }
+      <form (ngSubmit)="vm.admitPatient()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Citizen ID</label>
+            <input type="number" [(ngModel)]="vm.admitForm.citizenId" name="citizenId" readonly class="readonly-input" />
+          </div>
+          <div class="form-group">
+            <label>Emergency ID</label>
+            <input type="number" [(ngModel)]="vm.admitForm.emergencyId" name="emergencyId" readonly class="readonly-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Assigned Facility</label>
+          <input type="text" [value]="vm.admitForm.facilityId ? vm.getFacilityName(vm.admitForm.facilityId) : 'No facility assigned'" readonly class="readonly-input strong" />
+        </div>
+        <div class="form-group">
+          <label>Ward</label>
+          <select [(ngModel)]="vm.admitForm.ward" name="ward" required>
+            <option value="">-- Select Ward --</option>
+            <option value="ICU">ICU (Intensive Care Unit)</option>
+            <option value="GENERAL">General Ward</option>
+            <option value="EMERGENCY">Emergency Ward</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea [(ngModel)]="vm.admitForm.notes" name="notes" rows="3" placeholder="Additional notes..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="vm.isAdmittingPatient"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M2 4v16'></path><path d='M2 8h18a2 2 0 0 1 2 2v10'></path><path d='M2 17h20'></path><path d='M6 8v9'></path></svg> {{ vm.isAdmittingPatient ? 'Admitting...' : 'Admit Patient' }}</button>
+          <button type="button" class="btn-secondary" (click)="vm.cancelAdmit()">Cancel</button>
+        </div>
+      </form>
+    }
+  </div>
+}
+<div class="table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>Patient ID</th>
+        <th>Reported By</th>
+        <th>Facility ID</th>
+        <th>Ward</th>
+        <th>Admission Date</th>
+        <th>Status</th>
+        <th>Assigned Doctor</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of vm.patients; track p.patientId) {
+        <tr>
+          <td>#{{ p.patientId }}</td>
+          <td>{{ p.name || 'Loading...' }}</td>
+          <td>{{ p.facilityId || 'N/A' }}</td>
+          <td>{{ p.ward || 'N/A' }}</td>
+          <td>{{ p.admissionDate | date }}</td>
+          <td><span class="status-badge" [class]="p.status.toLowerCase()">{{ p.status }}</span></td>
+          <td>{{ vm.getAssignedDoctorName(p.patientId) || 'Not assigned' }}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-sm btn-info row-action-button" (click)="vm.viewPatientDetails(p)"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'></path><circle cx='12' cy='12' r='3'></circle></svg> View</button>
+              @if (p.status === 'DISCHARGED') {
+                <span class="muted-status">Discharged</span>
+              } @else if (p.status === 'STABLE') {
+                <button class="btn-sm btn-warning row-action-button" (click)="vm.dischargePatient(p.patientId)" [disabled]="vm.isActionInFlight(vm.patientDischargeActionKey(p.patientId))"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'></path><polyline points='16 17 21 12 16 7'></polyline><line x1='21' y1='12' x2='9' y2='12'></line></svg> {{ vm.isActionInFlight(vm.patientDischargeActionKey(p.patientId)) ? 'Discharging...' : 'Discharge' }}</button>
+              } @else {
+                <button class="btn-sm row-action-button btn-disabled" (click)="vm.dischargePatient(p.patientId)" title="Patient must be STABLE before discharge"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'></path><polyline points='16 17 21 12 16 7'></polyline><line x1='21' y1='12' x2='9' y2='12'></line></svg> Discharge</button>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+      @empty { <tr><td colspan="8" class="empty">No patients found</td></tr> }
+    </tbody>
+  </table>
+</div>

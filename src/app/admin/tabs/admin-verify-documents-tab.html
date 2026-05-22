@@ -1,0 +1,65 @@
+@if (vm.selectedCitizen) {
+  <div class="page-header">
+    <h2>Documents for {{ vm.selectedCitizen.name }}</h2>
+    <button class="btn-back" (click)="vm.setTab('pendingDocs')">← Back</button>
+  </div>
+  <div class="detail-card">
+    <h3>Citizen Information</h3>
+    <div class="detail-row"><span>Citizen ID</span><strong>#{{ vm.selectedCitizen.citizenId }}</strong></div>
+    <div class="detail-row"><span>Name</span><strong>{{ vm.selectedCitizen.name }}</strong></div>
+    <div class="detail-row"><span>Contact</span><strong>{{ vm.selectedCitizen.contactInfo }}</strong></div>
+    <div class="detail-row"><span>Address</span><strong>{{ vm.selectedCitizen.address || 'N/A' }}</strong></div>
+  </div>
+  <div class="table-card mt-section">
+    @if (vm.errorMsg) { <div class="alert error">{{ vm.errorMsg }}</div> }
+    <table class="verify-docs-table">
+      <thead><tr><th>Document ID</th><th>Upload Date</th><th>Status</th><th class="action-col">Actions</th></tr></thead>
+      <tbody>
+        @for (doc of vm.citizenDocuments; track doc.documentId) {
+          <tr>
+            <td>#{{ doc.documentId }}</td>
+            <td>{{ doc.uploadedDate }}</td>
+            <td><span class="status-badge" [class]="doc.verificationStatus.toLowerCase()">{{ doc.verificationStatus }}</span></td>
+            <td class="action-col">
+              <div class="action-buttons verify-doc-actions">
+                <button class="btn-sm btn-info row-action-button" (click)="vm.previewDocument(doc)"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'></path><circle cx='12' cy='12' r='3'></circle></svg> View</button>
+                @if (doc.verificationStatus === 'PENDING') {
+                  <button class="btn-sm btn-success row-action-button" (click)="vm.verifyDocument(doc.documentId, 'VERIFIED')" [disabled]="vm.isActionInFlight(vm.documentVerificationActionKey(doc.documentId, 'VERIFIED'))"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><polyline points='20 6 9 17 4 12'></polyline></svg> {{ vm.isActionInFlight(vm.documentVerificationActionKey(doc.documentId, 'VERIFIED')) ? 'Verifying...' : 'Verify' }}</button>
+                  <button class="btn-sm btn-danger row-action-button" (click)="vm.verifyDocument(doc.documentId, 'REJECTED')" [disabled]="vm.isActionInFlight(vm.documentVerificationActionKey(doc.documentId, 'REJECTED'))"><svg class='icon' viewBox='0 0 24 24' width='1.2em' height='1.2em' stroke='currentColor' stroke-width='2' fill='none'><line x1='18' y1='6' x2='6' y2='18'></line><line x1='6' y1='6' x2='18' y2='18'></line></svg> {{ vm.isActionInFlight(vm.documentVerificationActionKey(doc.documentId, 'REJECTED')) ? 'Rejecting...' : 'Reject' }}</button>
+                } @else {
+                  <span class="muted-status">{{ doc.verificationStatus }}</span>
+                }
+              </div>
+            </td>
+          </tr>
+          @if (vm.previewingDocId === doc.documentId) {
+            <tr class="preview-row">
+              <td colspan="4">
+                @if (vm.isLoadingDocument) {
+                  <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading document...</p>
+                  </div>
+                }
+                @if (vm.documentPreviewUrl && !vm.isLoadingDocument) {
+                  <div class="document-preview preview-panel">
+                    <div class="preview-header">
+                      <h3 class="preview-title">Document Preview</h3>
+                      <button class="btn-sm btn-secondary" (click)="vm.closePreview()">Close Preview</button>
+                    </div>
+                    @if (vm.documentIsImage) {
+                      <img [src]="vm.documentPreviewUrl" class="preview-media preview-media-lg" />
+                    } @else {
+                      <iframe [src]="vm.documentPreviewUrl" class="preview-media preview-frame preview-media-lg"></iframe>
+                    }
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        }
+        @empty { <tr><td colspan="4" class="empty">No documents</td></tr> }
+      </tbody>
+    </table>
+  </div>
+}

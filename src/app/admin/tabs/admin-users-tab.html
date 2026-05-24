@@ -78,7 +78,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let u of users; trackBy: trackByUserId">
+      <tr *ngFor="let u of paginatedUsers; trackBy: trackByUserId">
           <td>#{{ u.userId }}</td>
           <td>{{ u.name }}</td>
           <td>{{ u.email }}</td>
@@ -94,7 +94,27 @@
           </td>
         </tr>
       
-      <tr *ngIf="users.length === 0"><td colspan="6" class="empty">No users</td></tr>
+      <tr *ngIf="paginatedUsers.length === 0"><td colspan="6" class="empty">No users</td></tr>
     </tbody>
   </table>
+</div>
+
+<div class="list-pagination" *ngIf="userTotalElements > 0">
+  <div class="pagination-summary">
+    Showing {{ userRangeStart }} - {{ userRangeEnd }} of {{ userTotalElements }} users
+  </div>
+  <div class="pagination-controls">
+    <label>
+      Page size:
+      <select [ngModel]="userSize" (ngModelChange)="onUserPageSizeChange($event)">
+        <option [ngValue]="5">5</option>
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+        <option [ngValue]="50">50</option>
+      </select>
+    </label>
+    <button class="btn-secondary" (click)="goToPreviousUserPage()" [disabled]="userPage === 0">Previous</button>
+    <span>Page {{ userTotalPages === 0 ? 0 : (userPage + 1) }} of {{ userTotalPages }}</span>
+    <button class="btn-secondary" (click)="goToNextUserPage()" [disabled]="userPage + 1 >= userTotalPages">Next</button>
+  </div>
 </div>

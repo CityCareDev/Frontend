@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -123,7 +123,7 @@ export class DoctorDashboard implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.toastService.showError('Failed to load patients');
+          // this.toastService.showError('Failed to load patients');
           this.myPatients = [];
           this.assignedPatientIds.clear();
           this.applyMyPatientsFilter();
@@ -198,7 +198,7 @@ export class DoctorDashboard implements OnInit {
         this.refreshOverviewInsights();
         this.cdr.detectChanges();
       },
-      error: () => this.toastService.showError('Failed to load treatments')
+      error: () => {} // this.toastService.showError('Failed to load treatments')
     });
   }
 
@@ -398,7 +398,7 @@ export class DoctorDashboard implements OnInit {
             this.cdr.markForCheck();
           }
         },
-        error: () => this.toastService.showError('Failed to load citizen details')
+        error: () => {} // this.toastService.showError('Failed to load citizen details')
       });
   }
 
@@ -411,7 +411,7 @@ export class DoctorDashboard implements OnInit {
             this.cdr.markForCheck();
           }
         },
-        error: () => this.toastService.showError('Failed to load emergency details')
+        error: () => {} // this.toastService.showError('Failed to load emergency details')
       });
   }
 
@@ -433,7 +433,7 @@ export class DoctorDashboard implements OnInit {
   submitTreatment() {
     if (this.isSubmittingTreatment) return;
     if (!this.treatmentForm.description) {
-      this.toastService.showError('Description is required');
+      // this.toastService.showError('Description is required');
       return;
     }
 
@@ -461,7 +461,7 @@ export class DoctorDashboard implements OnInit {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          this.toastService.showError(err.error?.message || 'Failed to add treatment');
+          // this.toastService.showError(err.error?.message || 'Failed to add treatment');
         }
       });
   }
@@ -479,7 +479,7 @@ export class DoctorDashboard implements OnInit {
         setTimeout(() => { this.statusHighlight = false; this.cdr.detectChanges(); }, 1600);
       },
       error: (err) => {
-        this.toastService.showError('Failed to update status: ' + (err.error?.message || err.message));
+        // this.toastService.showError('Failed to update status: ' + (err.error?.message || err.message));
       }
     });
   }
@@ -525,7 +525,7 @@ export class DoctorDashboard implements OnInit {
           this.loadMyTreatments();
         },
         error: (err) => {
-          this.toastService.showError(err.error?.message || 'Failed to update treatment status');
+          // this.toastService.showError(err.error?.message || 'Failed to update treatment status');
           this.cdr.detectChanges();
         }
       });

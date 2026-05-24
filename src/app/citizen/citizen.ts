@@ -613,7 +613,7 @@ export class CitizenDashboard implements OnInit {
         },
         error: (err) => {
           const msg = err?.error?.message || err?.message || 'Failed to report emergency';
-          this.toastService.showError(msg);
+          // this.toastService.showError(msg); // Handled by interceptor
         }
       });
   }

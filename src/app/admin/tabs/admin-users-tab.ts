@@ -17,6 +17,12 @@ import { User } from '../../../models/user.model';
 })
 export class AdminUsersTab {
   users: User[] = [];
+  allUsers: User[] = [];
+  paginatedUsers: User[] = [];
+  userPage = 0;
+  userSize = 10;
+  userTotalPages = 0;
+  userTotalElements = 0;
   showAddUser = false;
   isSubmitting = false;
   errorMsg = '';
@@ -60,12 +66,18 @@ export class AdminUsersTab {
   loadUsers() {
     this.adminService.getAllUsers().subscribe({
       next: data => {
-        this.users = data;
+        this.allUsers = data;
         this.applyUserSort();
+        this.applyPagination();
         this.cdr.markForCheck();
       },
       error: () => {
+        this.allUsers = [];
         this.users = [];
+        this.paginatedUsers = [];
+        this.userPage = 0;
+        this.userTotalPages = 0;
+        this.userTotalElements = 0;
         this.cdr.markForCheck();
       }
     });
@@ -142,7 +154,7 @@ export class AdminUsersTab {
   applyUserSort() {
     const { key, direction } = this.userSort;
     const dir = direction === 'asc' ? 1 : -1;
-    this.users = [...this.users].sort((a, b) => {
+    this.users = [...this.allUsers].sort((a, b) => {
       const aValue = (a as any)?.[key];
       const bValue = (b as any)?.[key];
       if (aValue == null && bValue == null) return 0;
@@ -153,6 +165,47 @@ export class AdminUsersTab {
       }
       return String(aValue).localeCompare(String(bValue), undefined, { numeric: true, sensitivity: 'base' }) * dir;
     });
+    this.applyPagination();
+  }
+
+  applyPagination() {
+    this.userTotalElements = this.users.length;
+    this.userTotalPages = this.userTotalElements > 0 ? Math.ceil(this.userTotalElements / this.userSize) : 0;
+    // Clamp page if it exceeds available pages (e.g. after filtering or when entries < page size)
+    if (this.userPage >= this.userTotalPages) {
+      this.userPage = Math.max(0, this.userTotalPages - 1);
+    }
+    const start = this.userPage * this.userSize;
+    const end = start + this.userSize;
+    this.paginatedUsers = this.users.slice(start, end);
+  }
+
+  goToPreviousUserPage() {
+    if (this.userPage <= 0) return;
+    this.userPage--;
+    this.applyPagination();
+  }
+
+  goToNextUserPage() {
+    if (this.userPage + 1 >= this.userTotalPages) return;
+    this.userPage++;
+    this.applyPagination();
+  }
+
+  onUserPageSizeChange(size: string | number) {
+    const parsed = Number(size);
+    this.userSize = Number.isFinite(parsed) && parsed > 0 ? parsed : 10;
+    this.userPage = 0;
+    this.applyPagination();
+  }
+
+  get userRangeStart(): number {
+    if (this.userTotalElements === 0) return 0;
+    return (this.userPage * this.userSize) + 1;
+  }
+
+  get userRangeEnd(): number {
+    return Math.min((this.userPage + 1) * this.userSize, this.userTotalElements);
   }
 
   trackByUserId(_index: number, user: User): number {

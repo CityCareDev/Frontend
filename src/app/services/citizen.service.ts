@@ -59,7 +59,7 @@ export class CitizenService {
 
   isVerified(): boolean {
     const docs = this.documentsSubject.value;
-    return docs.some(d => d.verificationStatus === 'VERIFIED');
+    return docs.some(d => String(d.verificationStatus ?? '').toUpperCase() === 'VERIFIED');
   }
 
   getAllCitizens(page = 0, size = 1000): Observable<CitizenProfile[]> {
@@ -91,13 +91,13 @@ export class CitizenService {
   }
 
   verifyDocument(docId: number, status: 'VERIFIED' | 'REJECTED'): Observable<CitizenDocument> {
-    return this.http.patch<ApiResponse<CitizenDocument>>(`${this.API}/documents/${docId}/verify?status=${status}`, {})
+    return this.http.patch<ApiResponse<CitizenDocument>>(`${this.API}/documents/${docId}/verify?status=${status}`, {})       
       .pipe(map(res => res.data));
   }
 
   getDocumentBlob(citizenId: number, docId: number): Observable<Blob> {
-    return this.http.get(`${this.API}/${citizenId}/documents/${docId}/download`, { 
-      responseType: 'blob' 
+    return this.http.get(`${this.API}/${citizenId}/documents/${docId}/download`, {
+      responseType: 'blob'
     });
   }
 }

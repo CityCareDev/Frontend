@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe, CommonModule } from '@angular/common';
@@ -112,7 +112,7 @@ export class CitizenDashboard implements OnInit {
   private handleTabChange(tab: string) {
     if (tab === 'profile') this.loadProfile();
     if (tab === 'documents') this.loadDocuments();
-    if (tab === 'emergencies') this.loadEmergencies();
+    if (tab === 'emergencies') { this.loadEmergencies(); this.loadDocuments(); }
   }
 
   initForm() {

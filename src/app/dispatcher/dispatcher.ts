@@ -127,7 +127,7 @@ export class DispatcherDashboard implements OnInit {
         error: () => {
           this.availableAmbulances = [];
           this.refreshOverviewInsights();
-          this.toastService.showError('Failed to load ambulances');
+          // this.toastService.showError('Failed to load ambulances');
         } 
       });
   }
@@ -157,7 +157,7 @@ export class DispatcherDashboard implements OnInit {
 
   confirmDispatch(e: Emergency) {
     if (!this.dispatchForm.ambulanceId) {
-      this.toastService.showError('Please select an ambulance');
+      // this.toastService.showError('Please select an ambulance');
       return;
     }
     if (this.isSubmitting || this.dispatchRequestSub) return;
@@ -182,7 +182,7 @@ export class DispatcherDashboard implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.toastService.showError('Failed to dispatch ambulance');
+          // this.toastService.showError('Failed to dispatch ambulance');
         }
       });
   }

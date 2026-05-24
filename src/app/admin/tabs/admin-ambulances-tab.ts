@@ -93,7 +93,7 @@ export class AdminAmbulancesTab implements OnInit {
           this.loadAmbulances();
         },
         error: err => {
-          this.toastService.showError(this.extractErrorMessage(err, 'Failed to register ambulance'));
+          // this.toastService.showError(this.extractErrorMessage(err, 'Failed to register ambulance')); // Handled by interceptor
         }
       });
   }
